@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.90.0
+
+**Release Date:** 2025-10-10
+
+Added support for [TypeScript configuration files](https://prettier.io/docs/configuration.html#typescript-configuration-files):
+
+- `.prettierrc.ts`
+- `.prettierrc.mts`
+- `.prettierrc.cts`
+- `prettier.config.ts`
+- `prettier.config.mts`
+- `prettier.config.cts`
+
 ## 1.80.0
 
 **Release Date:** 2025-08-16
