@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.91.0
+
+**Release Date:** 2026-03-19
+
+This release adds support for Prettier's `--config-path` CLI option, introduced in Prettier's
+experimental CLI (`--experimental-cli`).
+
+When `--experimental-cli` is present in `additional_cli_args`, the plugin automatically uses
+`--config-path` to pass the resolved config file path to Prettier. Otherwise, the classic `--config`
+flag is used. **No changes to your settings are required.**
+
+Both `--config` and `--config-path` are accepted as keys in the `additional_cli_args` setting.
+
 ## 1.90.0
 
 **Release Date:** 2025-10-10

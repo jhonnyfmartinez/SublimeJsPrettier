@@ -237,10 +237,11 @@ Configure plugin settings and Prettier options via the application menu:
     Enable auto format on save *only* when a Prettier config file is (or isn't)
     found.
 
-    The Prettier config file is resolved by first checking if a `--config </path/to/prettier/config>`
+    The Prettier config file is resolved by first checking if a `--config-path <path>` or `--config <path>`
     is specified in the `additional_cli_args` setting, then by searching the
     location of the file being formatted, and finally navigating up the file tree
-    until a config file is (or isn't) found.
+    until a config file is (or isn't) found. When `--experimental-cli` is present
+    in `additional_cli_args`, the plugin uses `--config-path`; otherwise `--config` is used.
 
 - **allow_inline_formatting** (default: ***false***)  
     Enables the ability to format *selections* of in-lined code. For example, to
@@ -292,13 +293,15 @@ Configure plugin settings and Prettier options via the application menu:
     ```jsonc
     {
         "additional_cli_args": {
-            "--config": "~/.prettierrc",
+            "--config-path": "~/.prettierrc",  // use with --experimental-cli
             // or
-            "--config": "$HOME/.prettierrc",
+            "--config": "~/.prettierrc",       // classic Prettier (no --experimental-cli)
             // or
-            "--config": "${project_path}/.prettierrc",
+            "--config-path": "$HOME/.prettierrc",
             // or
-            "--config": "/some/absolute/path/to/.prettierrc",
+            "--config-path": "${project_path}/.prettierrc",
+            // or
+            "--config-path": "/some/absolute/path/to/.prettierrc",
 
             "--config-precedence": "file-override",
             "--ignore-path": "${file_path}/.prettierignore",
@@ -528,13 +531,14 @@ or selection(s) defined in Sublime Text.
 
 #### Custom Prettier Config File Path
 
-To specify a custom Prettier config path, simply add a `--config <path>`
-key-value item to `additional_cli_args`. Here's an example:
+To specify a custom Prettier config path, add `--config-path <path>` (when using
+`--experimental-cli`) or `--config <path>` (classic Prettier) as a key-value item in
+`additional_cli_args`. Both keys are accepted by the plugin. Here's an example:
 
 ```json
 {
     "additional_cli_args": {
-        "--config": "~/some/path/from/my/home/.prettierrc",
+        "--config-path": "~/some/path/from/my/home/.prettierrc",
         "--config-precedence": "prefer-file",
         "--ignore-path": "${project_path}/.prettierignore"
     }

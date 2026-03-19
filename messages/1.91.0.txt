@@ -1,0 +1,22 @@
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                     _     ____           _   _   _                           │
+│                    | |___|  _ \ _ __ ___| |_| |_(_) ___ _ __                 │
+│                 _  | / __| |_) | '__/ _ \ __| __| |/ _ \ '__|                │
+│                | |_| \__ \  __/| | |  __/ |_| |_| |  __/ |                   │
+│                 \___/|___/_|   |_|  \___|\__|\__|_|\___|_|                   │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+## 1.91.0
+
+Release date: 2026-03-19
+
+This release adds support for Prettier's `--config-path` CLI option, introduced
+in Prettier's experimental CLI (`--experimental-cli`).
+
+When `--experimental-cli` is present in `additional_cli_args`, the plugin
+automatically uses `--config-path` to pass the resolved config file path to
+Prettier. Otherwise, the classic `--config` flag is used.
+
+No changes to your settings are required. Both `--config` and `--config-path`
+are accepted as keys in the `additional_cli_args` setting.
