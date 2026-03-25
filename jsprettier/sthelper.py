@@ -142,6 +142,60 @@ def has_selection(view):
     return False
 
 
+def _resolve_bin_to_js(bin_path):
+    """Resolve a node_modules/.bin/ shell wrapper to its actual JS entry point.
+
+    When a custom node_path is set, the command is run as `node <prettier_cli_path>`.
+    The .bin/ entries are shell scripts (symlinks on Unix, cmd scripts on Windows),
+    which Node cannot execute as JavaScript. This function resolves the wrapper to
+    the real JS file by following symlinks or reading the package.json "bin" field.
+
+    This is particularly important for monorepo setups (Rush, pnpm, etc.) where
+    .bin/ entries are symlinks to the actual package in a shared store.
+
+    :param bin_path: Path to a file in node_modules/.bin/
+    :return: The resolved JS file path, or the original path if resolution fails.
+    """
+    if not bin_path or not os.path.exists(bin_path):
+        return bin_path
+
+    # Check if this is a .bin/ wrapper
+    bin_dir = os.path.dirname(bin_path)
+    if os.path.basename(bin_dir) != '.bin':
+        return bin_path
+
+    # 1. Try following symlinks (works on Unix/macOS)
+    if os.path.islink(bin_path):
+        resolved = os.path.realpath(bin_path)
+        if resolved != bin_path and os.path.isfile(resolved):
+            return resolved
+
+    # 2. Try finding the JS entry point via package.json "bin" field
+    pkg_name = os.path.basename(bin_path)
+    node_modules_dir = os.path.dirname(bin_dir)
+    package_json_path = os.path.join(node_modules_dir, pkg_name, 'package.json')
+    if os.path.isfile(package_json_path):
+        try:
+            import json
+            with open(package_json_path) as f:
+                pkg_data = json.load(f)
+            bin_field = pkg_data.get('bin')
+            if isinstance(bin_field, str):
+                js_path = os.path.normpath(os.path.join(node_modules_dir, pkg_name, bin_field))
+                if os.path.isfile(js_path):
+                    return js_path
+            elif isinstance(bin_field, dict):
+                js_rel = bin_field.get(pkg_name)
+                if js_rel:
+                    js_path = os.path.normpath(os.path.join(node_modules_dir, pkg_name, js_rel))
+                    if os.path.isfile(js_path):
+                        return js_path
+        except Exception:
+            pass
+
+    return bin_path
+
+
 def resolve_prettier_cli_path(view, plugin_path, st_project_path):
     """The prettier cli path.
 
@@ -172,16 +226,16 @@ def resolve_prettier_cli_path(view, plugin_path, st_project_path):
         for parent in active_view_parents:
             closest_to_view_prettier = make_local_prettier_path(parent)
             if os.path.exists(closest_to_view_prettier):
-                return closest_to_view_prettier
+                return _resolve_bin_to_js(closest_to_view_prettier)
 
         #
         # 2. check locally installed prettier
         project_prettier_path = make_local_prettier_path(st_project_path)
         if os.path.exists(project_prettier_path):
-            return project_prettier_path
+            return _resolve_bin_to_js(project_prettier_path)
         plugin_prettier_path = make_local_prettier_path(plugin_path)
         if os.path.exists(plugin_prettier_path):
-            return plugin_prettier_path
+            return _resolve_bin_to_js(plugin_prettier_path)
 
         #
         # 3. check locally installed '--no-bin-links' prettier (see #146)
