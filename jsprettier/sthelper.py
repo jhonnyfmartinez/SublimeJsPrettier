@@ -38,9 +38,11 @@ def get_setting(view, key, default_value=None):
 
 def get_sub_setting(view, key=None):
     settings = view.settings().get(PLUGIN_NAME)
-    if settings is None or settings.get(PRETTIER_OPTIONS_KEY).get(key) is None:
+    prettier_options = settings.get(PRETTIER_OPTIONS_KEY) if settings else None
+    if prettier_options is None or prettier_options.get(key) is None:
         settings = sublime.load_settings(SETTINGS_FILENAME)
-    value = settings.get(PRETTIER_OPTIONS_KEY).get(key)
+        prettier_options = settings.get(PRETTIER_OPTIONS_KEY) if settings else None
+    value = prettier_options.get(key) if prettier_options else None
     # check for project-level overrides:
     project_value = _get_project_sub_setting(key)
     if project_value is None:
